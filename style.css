@@ -1,0 +1,31 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 10px;
+    border: 1px solid black;
+    text-align: center;
+}
+
+th {
+    background-color: lightgray;
+}
+.nacionales{
+    background-color: lightcoral;
+}
+.actual{
+    background-color: lightgreen;
+}
+.comunidad{
+    background-color: lightblue;
+}
+.local{
+    background-color: lightcyan;
+}
+.domingo{
+    background-color: lightgoldenrodyellow;
+
+}

@@ -1,99 +1,123 @@
-<!DOCTYPE html>
-<html lang="en">
+        <!-- VISTA -->
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+    <!DOCTYPE html>
+    <html lang="en">
 
-    th,
-    td {
-        padding: 10px;
-        border: 1px solid black;
-        text-align: center;
-    }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css">
+        <title>Calendario</title>
+    </head>
 
-    th {
-        background-color: lightgray;
-    }
-</style>
-
-<body>
-    <h1>Calendario</h1>
-
-    <table>
-        <tr>
-            <th>Lunes</th>
-            <th>Martes</th>
-            <th>Miércoles</th>
-            <th>Jueves</th>
-            <th>Viernes</th>
-            <th>Sábado</th>
-            <th>Domingo</th>
-        </tr>
+    <body>
+        <h1>Calendario</h1>
         <?php
-        $mes = 10 ;
-        $ano = 2024;
-        $cont_dias = 1;
+        include("config.php");
 
-        $fecha = new DateTime("$ano-$mes-01");
-        $fecha->modify('first day of this month');
-        $dia_semana = $fecha->format('N');
-        $dias_mes = $fecha->format('t');
-
-        $dias_festivos_nacionales = array(
-            '1-1',    // Año Nuevo
-            '1-6',    // Día de Reyes
-            '5-1',    // Día del Trabajador
-            '10-12',  // Día de la Hispanidad
-            '11-1',   // Día de Todos los Santos
-            '12-24',  // Nochebuena
-            '12-25',  // Navidad
-            '12-31'   // Nochevieja
-        );
-
-        $dias_festivos_comunidad = array('2-28'); //Dia de Andalucía
+        // Verificar si se ha pasado una fecha como parámetro en la URL y mostrar la fecha seleccionada
         
-        $dias_festivos_locales = array(
-            '9-8', // Virgen de la Fuensanta
-            '5-3' // Día de la Cruz
-        );
+        if (isset($_GET['fecha'])) {
+            $fecha = htmlspecialchars($_GET['fecha']);
+            echo "<h1>$fecha</h1>";
+        } else {
+            // Mostrar el calendario
+            echo "<form action='' method='post'>
+                    <select name='mes' required>";
 
-        for ($i = 1; $i < $dia_semana; $i++) {
-            echo "<td></td>";
-        }
-
-        while ($cont_dias <= $dias_mes) {
-            $fecha_actual = "$mes-$cont_dias";
-
-            if (in_array($fecha_actual, $dias_festivos_nacionales)) {
-                echo "<td style='background-color: lightcoral;'>$cont_dias</td>";
-            } elseif ($cont_dias == date("j") && $mes == date("n") && $ano == date("Y")) {
-                echo "<td style='background-color: lightgreen;'>$cont_dias</td>";
-            } elseif (in_array($fecha_actual, $dias_festivos_comunidad)) {
-                echo "<td style='background-color: lightblue;'>$cont_dias</td>";
-            } elseif (in_array($fecha_actual, $dias_festivos_locales)) {
-                echo "<td style='background-color: lightcoral;'>$cont_dias</td>";
-            } else{
-                echo "<td>$cont_dias</td>";
+            // Opciones de meses
+            foreach ($a_meses_años as $key => $value) {
+                echo '<option value="' . ($key + 1) . '"';
+                if ($key + 1 == $mes_actual) {
+                    echo ' selected';
+                }
+                echo '>' . $value . '</option>';
             }
-            if (($dia_semana + $cont_dias - 1) % 7 == 0) {
-                echo "</tr><tr>";
-            }
-            $cont_dias++;
-        }
+            echo "</select>";
 
-        for ($i = 1; $i < $dia_semana; $i++) {
-            echo "<td></td>";
+            // Entrada para el año
+            echo "<input type='number' name='ano' value='" . $ano_actual . "' required>";
+            echo "<input type='submit' name='cargar' value='Cargar'>";
+            echo "</form>";
+            ?>
+            <br>
+            <br>  
+            <table>
+                <tr>
+                    <th>Lunes</th>
+                    <th>Martes</th>
+                    <th>Miércoles</th>
+                    <th>Jueves</th>
+                    <th>Viernes</th>
+                    <th>Sábado</th>
+                    <th>Domingo</th>
+                </tr>
+                <?php
+                // Obtener mes y año actuales o seleccionados
+                if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                    $mes = htmlspecialchars($_POST['mes']);
+                    $ano = htmlspecialchars($_POST['ano']);
+                } else {
+                    $mes = $mes_actual;
+                    $ano = $ano_actual;
+                }
+
+                // Obtener primeros datos para el calendario
+                $fecha = new DateTime("$ano-$mes-01");
+                $dia_semana = $fecha->format('N');
+                $dias_mes = $fecha->format('t');
+                $cont_dias = 1;
+                
+
+                // Espacios en blanco antes del primer día
+                echo "<tr>";
+                for ($i = 1; $i < $dia_semana; $i++) {
+                    echo "<td></td>";
+                }
+
+                $ano_actual = date("Y");
+
+                while ($cont_dias <= $dias_mes) {
+                    // Obtener el mes y día de la fecha actual
+                    $fecha_actual = "$ano-$mes-$cont_dias";
+                    $fecha_dia = new DateTime($fecha_actual);
+                    $dia_semana = $fecha_dia->format('N');
+
+                    // Extraer mes y día para comparación
+                    $mes_dia = "$mes-$cont_dias";
+
+                    // Comprobando si el mes-día está en el array de días festivos
+                    if (in_array($mes_dia, $dias_festivos_nacionales)) {
+                        echo "<td class='nacionales'><a href='?fecha=$fecha_actual' target='_blank'>$cont_dias</a></td>";
+                    } elseif ($cont_dias == date("j") && $mes == date("n") && $ano == date("Y")) {
+                        echo "<td class='actual'><a href='?fecha=$fecha_actual' target='_blank'>$cont_dias</a></td>";
+                    } elseif (in_array($mes_dia, $dias_festivos_comunidad)) {
+                        echo "<td class='comunidad'><a href='?fecha=$fecha_actual' target='_blank'>$cont_dias</a></td>";
+                    } elseif (in_array($mes_dia, $dias_festivos_locales)) {
+                        echo "<td class='local'><a href='?fecha=$fecha_actual' target='_blank'>$cont_dias</a></td>";
+                    } elseif ($dia_semana == 7) {
+                        echo "<td class='domingo'><a href='?fecha=$fecha_actual' target='_blank'>$cont_dias</a></td>";
+                    } else {
+                        echo "<td><a href='?fecha=$fecha_actual' target='_blank'>$cont_dias</a></td>";
+                    }
+
+                    // Salto de línea para el final de la semana
+                    if ($dia_semana == 7) {
+                        echo "</tr><tr>";
+                    }
+
+                    $cont_dias++;
+}
+                // Relleno de la fila final si es necesario
+                if ($dia_semana < 7) {
+                    for ($i = $dia_semana; $i < 7; $i++) {
+                        echo "<td></td>";
+                    }
+                }
+                echo "</tr>";
+                echo "</table>";
         }
         ?>
-    </table>
-</body>
+    </body>
 
-</html>
+    </html>
