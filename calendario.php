@@ -1,5 +1,4 @@
-        <!-- VISTA -->
-
+    <!-- VISTA -->
     <!DOCTYPE html>
     <html lang="en">
 
@@ -37,11 +36,22 @@
 
             // Entrada para el año
             echo "<input type='number' name='ano' value='" . $ano_actual . "' required>";
-            echo "<input type='submit' name='cargar' value='Cargar'>";
-            echo "</form>";
             ?>
+            <input type='submit' name='cargar' value='Cargar'>
+            </form>
             <br>
-            <br>  
+            <br>
+            <?php
+                // Obtener mes y año actuales o seleccionados
+                if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                    $mes = htmlspecialchars($_POST['mes']);
+                    $ano = htmlspecialchars($_POST['ano']);
+                } else {
+                    $mes = $mes_actual;
+                    $ano = $ano_actual;
+                }
+                echo '<h3>' . $mes . '-' . $ano . '</h3>';
+            ?>
             <table>
                 <tr>
                     <th>Lunes</th>
@@ -53,14 +63,7 @@
                     <th>Domingo</th>
                 </tr>
                 <?php
-                // Obtener mes y año actuales o seleccionados
-                if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                    $mes = htmlspecialchars($_POST['mes']);
-                    $ano = htmlspecialchars($_POST['ano']);
-                } else {
-                    $mes = $mes_actual;
-                    $ano = $ano_actual;
-                }
+
 
                 // Obtener primeros datos para el calendario
                 $fecha = new DateTime("$ano-$mes-01");
